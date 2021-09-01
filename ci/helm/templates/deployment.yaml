@@ -1,0 +1,90 @@
+# =============================================================================
+# DEPLOYMENT
+# =============================================================================
+# Variables:
+{{- if index .Values.deployment "botkatewhiteteacher" }}
+{{ $deployment := index .Values.deployment "botkatewhiteteacher" }}
+{{ $configs := index .Values.configmap "botkatewhiteteacher" }}
+{{ $secrets := index .Values.secrets  "botkatewhiteteacher" }}
+# Template: ===================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    chartName: {{ .Chart.Name }}
+    chartAppVersion: {{ .Chart.AppVersion }}
+    chartVersion: {{ .Chart.Version }}
+    {{- range $key, $value := $deployment.labels }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
+  name: {{ $deployment.name }}
+spec:
+  progressDeadlineSeconds: 600
+  replicas: {{ $deployment.replicas }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      {{- range $key, $value := $deployment.labels }}
+      {{ $key }}: {{ $value }}
+      {{- end }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        chartName: {{ .Chart.Name }}
+        chartAppVersion: {{ .Chart.AppVersion }}
+        chartVersion: {{ .Chart.Version }}
+        {{- range $key, $value := $deployment.labels }}
+        {{ $key }}: {{ $value }}
+        {{- end }}
+      annotations:
+        {{- range $key, $value := $deployment.annotations }}
+        {{ $key }}: {{ $value }}
+        {{- end }}
+    spec:
+      #
+      # CONTAINERS
+      #
+      containers:
+        - image: "{{ $deployment.image }}:{{ $deployment.imageTag }}"
+          imagePullPolicy: Always
+          name: {{ $deployment.name }}
+          resources:
+            limits:
+              cpu: {{ $deployment.resourcesLimitsCPU | default "1" }}
+              memory: {{ $deployment.resourcesLimitsMemory | default "1024Mi" }}
+            requests:
+              cpu: {{ $deployment.resourcesRequestsCPU | default "250m" }}
+              memory: {{ $deployment.resourcesRequestsMemory | default "250Mi" }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          env:
+          # Configs
+          {{- range $key, $value := $configs }}
+          - name: {{ $key }}
+            valueFrom:
+              configMapKeyRef:
+                  key: {{ $key }}
+                  name: {{ $deployment.name }}
+          {{- end }}
+          # Secrets
+          {{- range $key, $value := $secrets }}
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                  key: {{ $key }}
+                  name: {{ $deployment.name }}
+          {{- end }}
+      # Outside pod
+      dnsPolicy: ClusterFirst
+#      imagePullSecrets:
+#      - name: DOCKER_REGISTRY_ADDRESS
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+{{- end }}

@@ -1,0 +1,17 @@
+# =============================================================================
+# CONFIGMAP
+# =============================================================================
+# Variables:
+{{- if index .Values.deployment "botkatewhiteteacher" }}
+{{ $deployment := index .Values.deployment "botkatewhiteteacher" }}
+{{ $configs := index .Values.configmap  "botkatewhiteteacher" }}
+# Template: ===================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $deployment.name }}
+data:
+    {{- range $key, $value := $configs  }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+{{- end }}
