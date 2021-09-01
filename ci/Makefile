@@ -8,7 +8,7 @@ docker-push: docker-build
 
 docker-build-test:
 	docker build -t lpelegrin/bot-katewhiteteacher:test -f Dockerfile ../src/.
-docker-push-test: build-test
+docker-push-test: docker-build-test
 	docker push lpelegrin/bot-katewhiteteacher:test
 
 #
@@ -23,4 +23,4 @@ helm-prod:
 
 helm-test:
 	helm delete katewhiteteacher-test || true
-	helm upgrade -i -f helm/values.test.yaml -n default katewhiteteacher-test helm/.
+	helm upgrade -i -f helm/values.test.yaml -n lpelegrin katewhiteteacher-test helm/.
