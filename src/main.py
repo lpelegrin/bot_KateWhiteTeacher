@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 import schedule
 import random
@@ -96,11 +97,10 @@ def bot_send_poll(chat_id, bot_question, bot_options, bot_correct_option_id, typ
 
 def quiz(room_settings):
     quiz = get_quiz_from_spreadsheet()
-    print("QUIZ", quiz)
 
-    msg = "------- Daily Quiz Game --------------\n"
+    msg = "---------- Daily Quiz Game ----------\n"
     msg += "📣🔔 Welcome to WhiteKate group 👩‍🏫\n"
-    msg += "-------------------------------------\n"
+    msg += "--------------------------------------\n"
     msg += "Can you guess the correct Russian translation of ( %s )" % (quiz['question'])
 
     bot_send_poll(room_settings["ID"],
@@ -120,7 +120,9 @@ if __name__ == '__main__':
         print("Wrong ENV variable %s" % (env))
         exit()
 
-    schedule.every().day.at("15:50").do(quiz, room)
-
-    while True:
-        schedule.run_pending()
+    if "job" in sys.argv:
+        quiz(room)
+    else:
+        schedule.every().day.at("13:00").do(quiz, room)
+        while True:
+            schedule.run_pending()
