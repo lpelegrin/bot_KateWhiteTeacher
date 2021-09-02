@@ -100,7 +100,7 @@ def quiz(room_settings):
 
     msg = "------- Daily Quiz Game --------------\n"
     msg += "📣🔔 Welcome to WhiteKate group 👩‍🏫\n"
-    msg += "--------------------------------------\n"
+    msg += "-------------------------------------\n"
     msg += "Can you guess the correct Russian translation of ( %s )" % (quiz['question'])
 
     bot_send_poll(room_settings["ID"],
@@ -120,7 +120,7 @@ if __name__ == '__main__':
         print("Wrong ENV variable %s" % (env))
         exit()
 
-    schedule.every().day.at("16:00").do(quiz, room)
+    schedule.every().day.at("15:50").do(quiz, room)
 
     while True:
         schedule.run_pending()
