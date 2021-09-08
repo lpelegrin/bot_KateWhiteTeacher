@@ -26,3 +26,8 @@ helm-test:
 # CUSTOM
 #
 try: docker-push-test helm-test
+
+trigger-job-test:
+	kubectl get pods -n kate-test --no-headers -o=custom-columns=NAME:.metadata.name | xargs -I{} kubectl exec -n kate-test {} -- bash -c "python3 main.py job"
+trigger-job-prod:
+	kubectl get pods -n kate-prod --no-headers -o=custom-columns=NAME:.metadata.name | xargs -I{} kubectl exec -n kate-prod {} -- bash -c "python3 main.py job"	
